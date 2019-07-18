@@ -19,6 +19,6 @@ cv2.drawContours(_img, _cnt, _biggestIndex, [0,0,255])
 # cv2.imshow('_bina',_bina)
 # cv2.imshow('_canny',_canny)
 cv2.imshow('img',_img)
-
+test1
 cv2.waitKey(0)
 cv2.destroyAllWindows()
