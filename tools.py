@@ -51,4 +51,10 @@ def drawOctagon(img, center, radius, RIO_ratio, rotate_Angle):  #Draw octagon in
     octagon = np.array([[octagon_piont[0], octagon_piont[1], octagon_piont[2], octagon_piont[3], octagon_piont[4],
                          octagon_piont[5], octagon_piont[6], octagon_piont[7]]], dtype=np.int32)
     cv2.polylines(img, octagon, 1, (0, 255, 0))
-    return img
+    return img, octagon[0]
+
+def checkInScale(coords, cnts):                                 # check the points whether inside of the contours
+    for i in range(len(coords)):
+        if cv2.pointPolygonTest(cnts, (coords[i][0], coords[i][1]), True) < 0:
+            return [coords[i][0], coords[i][1]]
+    return True
