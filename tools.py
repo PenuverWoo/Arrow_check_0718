@@ -22,13 +22,13 @@ def findBiggestIndex(cnt, num):                                 # Find out bigge
 def ROI(img, center, radius, num):                              # 1 means ROI of center of Arrows
     temp = np.ones(img.shape[:2], np.uint8) * 0
     if num is 1:
-        print(type(center[0]))
+        # print(type(center[0]))
         temp[center[1]-50:center[1]+50, center[0]-50:center[0]+50] = 255
 
         masked = cv2.bitwise_and(img, img, mask=temp)
 
         masked = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-        _ROI_thre, _ROI_bina = cv2.threshold(masked, 80, 255, cv2.THRESH_BINARY)
+        _ROI_thre, _ROI_bina = cv2.threshold(masked, 50, 255, cv2.THRESH_BINARY)
         return _ROI_bina
 
 def drawOctagon(img, center, radius, RIO_ratio, rotate_Angle):  #Draw octagon in image image with diff angle
@@ -50,11 +50,37 @@ def drawOctagon(img, center, radius, RIO_ratio, rotate_Angle):  #Draw octagon in
         InitAngle += 45
     octagon = np.array([[octagon_piont[0], octagon_piont[1], octagon_piont[2], octagon_piont[3], octagon_piont[4],
                          octagon_piont[5], octagon_piont[6], octagon_piont[7]]], dtype=np.int32)
-    cv2.polylines(img, octagon, 1, (0, 255, 0))
-    return img, octagon[0]
 
-def checkInScale(coords, cnts):                                 # check the points whether inside of the contours
+    # Catch all of octagon coords
+    temp = np.ones(img.shape[:2], np.uint8) * 0
+    cv2.polylines(temp, octagon, 1, (255, 255, 255))
+    cnts = cv2.findContours(temp, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[-2]
+    # cv2.imshow('tep',temp)
+
+    temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2RGB)
+    cv2.polylines(img, octagon, 1, (0, 255, 0))
+    return img, octagon[0], cnts[0]
+
+def checkInScale(coord, cnts):                                 # check the points whether inside of the contours
+    for i in range(len(coord)):
+        value = cv2.pointPolygonTest(cnts, (coord[i][0], coord[i][1]), True)
+        if value < 0:
+            return [coord[i][0], coord[i][1]]
+    return value
+
+def CountInAreas(cnts, coords):
+    # cnts1 = cnts1.reshape(len(cnts1), 2)
+    X_num = 0
+    Y_num = 0
+    coords = coords.T
+    coords[0] -= X_num
+    coords = coords.T
+    coords = coords.reshape(len(coords), 2)
+    print(coords)
+    # print(cnts1, cnts2)
+    count = 0
     for i in range(len(coords)):
-        if cv2.pointPolygonTest(cnts, (coords[i][0], coords[i][1]), True) < 0:
-            return [coords[i][0], coords[i][1]]
-    return True
+        value = cv2.pointPolygonTest(cnts, (coords[i][0], coords[i][1]), True)
+        if value < 0:
+            count += 1
+    print(count)
