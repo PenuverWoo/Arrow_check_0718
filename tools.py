@@ -23,17 +23,17 @@ def ROI(img, center, radius, num):                              # 1 means ROI of
     temp = np.ones(img.shape[:2], np.uint8) * 0
     if num is 1:
         # print(type(center[0]))
-        temp[center[1]-50:center[1]+50, center[0]-50:center[0]+50] = 255
+        temp[center[1]-60:center[1]+60, center[0]-60:center[0]+60] = 255
 
         masked = cv2.bitwise_and(img, img, mask=temp)
 
         masked = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-        _ROI_thre, _ROI_bina = cv2.threshold(masked, 50, 255, cv2.THRESH_BINARY)
+        _ROI_thre, _ROI_bina = cv2.threshold(masked, 100, 255, cv2.THRESH_BINARY)
         return _ROI_bina
 
-def drawOctagon(img, center, radius, RIO_ratio, rotate_Angle):  #Draw octagon in image image with diff angle
-    x = center[0]
-    y = center[1]
+def drawOctagon(img, center, radius, RIO_ratio, rotate_Angle, X_PlusMinus=0, Y_PlusMinus=0):  #Draw octagon in image image with diff angle
+    x = center[0] + X_PlusMinus
+    y = center[1] + Y_PlusMinus
     InitAngle = 0
     locationX, LocationY = [ ((x - radius*RIO_ratio - x) * np.cos(np.radians(rotate_Angle)) + (y - y) * np.sin(np.radians(rotate_Angle)) + x), \
                             ((y - y) * np.cos(np.radians(rotate_Angle)) - (x - radius*RIO_ratio - x) * np.sin(np.radians(rotate_Angle)) + y)]
@@ -68,19 +68,21 @@ def checkInScale(coord, cnts):                                 # check the point
             return [coord[i][0], coord[i][1]]
     return value
 
-def CountInAreas(cnts, coords):
+def CountOutsideAreas(Oct_cnts, coords):
     # cnts1 = cnts1.reshape(len(cnts1), 2)
-    X_num = 0
-    Y_num = 0
-    coords = coords.T
-    coords[0] -= X_num
-    coords = coords.T
-    coords = coords.reshape(len(coords), 2)
-    print(coords)
+    # X_num = 0
+    # Y_num = 0
+    # coords = coords.T
+    # coords[0] -= X_num
+    # coords = coords.T
+    Oct_cnts = Oct_cnts.reshape(len(Oct_cnts), 2)
+    # print(Oct_cnts)
     # print(cnts1, cnts2)
     count = 0
-    for i in range(len(coords)):
-        value = cv2.pointPolygonTest(cnts, (coords[i][0], coords[i][1]), True)
-        if value < 0:
+    for i in range(len(Oct_cnts)):
+        value = cv2.pointPolygonTest(coords, (Oct_cnts[i][0], Oct_cnts[i][1]), True)
+        # print(value)
+        if value <= 0:
             count += 1
     print(count)
+    return  count
